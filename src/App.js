@@ -1,4 +1,4 @@
-import React from 'react';
+  import React from 'react';
 import ListPersons from './components/ListPersons'
 import AddPerson from './components/AddPerson'
 import Filter from './components/Filter'
@@ -32,6 +32,16 @@ class App extends React.Component {
       number: this.state.newNumber
     }
 
+    if((this.state.newName === '') || (this.state.newNumber === '')) {
+      this.setState({
+        error: `kumpikaan kenttä ei saa olla tyhjä`
+      })
+      setTimeout(() => {
+        this.setState({error: null})
+      }, 5000)
+      return
+    }
+
     const searchPerson = this.state.persons.find(person => person.name === this.state.newName)
     if (!searchPerson) {
       personService
@@ -55,7 +65,6 @@ class App extends React.Component {
 
   updatePhone = (id) => {
     const name = this.state.newName
-    const number = this.state.newNumber
     
     if(!window.confirm(`${name} on jo olemassa, haluatko antaa uuden numeron`)){
       this.setState({
@@ -65,9 +74,11 @@ class App extends React.Component {
       return
     }
 
+    const person = this.state.persons.find(person => person.id === id)
+    const updatedPerson = { ...person, number: this.state.newNumber}
     personService
-      .update(id, { name, number })
-      .then(updatedPerson => {
+      .update(id, updatedPerson)
+      .then(response => {
         this.setState({
           persons: this.state.persons.map(person => person.id !== id ? person : updatedPerson ),
           newName: '',
